@@ -1,5 +1,7 @@
 package com.model;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
@@ -11,12 +13,21 @@ public class Transaction {
     private String id;
 
     private String transactionId;
+
+    @NotNull(message = "Transaction type is required")
     private String type;
+
+    @Positive(message = "Amount must be greater than 0")
     private double amount;
+
     private Date timestamp;
+
     private String status;
 
+    @NotNull(message = "Source account is required")
     private String sourceAccount;
+
+    @NotNull(message = "Destination account is required")
     private String destinationAccount;
 
     public String getId() {

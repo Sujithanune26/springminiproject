@@ -1,5 +1,8 @@
 package com.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -12,9 +15,15 @@ public class Account {
     private String id;
 
     private String accountNumber;
+
+    @NotBlank(message = "Name is required")
     private String holderName;
+
+
     private double balance;
+
     private String status;
+
     private Date createdAt;
 
     public Account() {

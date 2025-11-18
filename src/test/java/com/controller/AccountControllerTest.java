@@ -8,14 +8,12 @@ import com.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -43,7 +41,9 @@ class AccountControllerTest {
     @Test
     void create_shouldCallServiceAndReturnAccount() {
         // arrange
-        Map<String, String> req = Map.of("holderName", "Alice");
+        Account req = new Account();
+        req.setHolderName("Alice");
+
         Account expected = mock(Account.class);
         when(service.createAccount("Alice")).thenReturn(expected);
 
@@ -145,7 +145,7 @@ class AccountControllerTest {
     // Optional: test that create handles missing holderName gracefully (if controller doesn't guard it).
     @Test
     void create_withMissingHolderName_callsServiceWithNull() {
-        Map<String, String> req = Map.of(); // no holderName
+        Account req = new Account(); // holderName is null by default
         Account expected = mock(Account.class);
         when(service.createAccount(null)).thenReturn(expected);
 

@@ -235,4 +235,95 @@ class AccountServiceImplTest {
         assertEquals(2, all.size());
         verify(accountRepo).findAll();
     }
+
+    @Test
+    void deleteAccount_existingAccount_deletesAndDoesNotThrow() {
+        // arrange
+        String acctNum = "ACC123";
+        Account account = new Account();
+        account.setAccountNumber(acctNum);
+        when(accountRepo.findByAccountNumber(acctNum)).thenReturn(account);
+
+        // act & assert (no exception)
+        assertDoesNotThrow(() -> service.deleteAccount(acctNum));
+
+        // verify deletion called
+        verify(accountRepo, times(1)).delete(account);
+    }
+
+    @Test
+    void deleteAccount_nonExistingAccount_throwsAccountNotFoundException() {
+        // arrange
+        String acctNum = "NOT_FOUND";
+        when(accountRepo.findByAccountNumber(acctNum)).thenReturn(null);
+
+        // act & assert
+        AccountNotFoundException ex = assertThrows(AccountNotFoundException.class,
+                () -> service.deleteAccount(acctNum));
+
+        assertEquals("Account does not exist", ex.getMessage());
+        verify(accountRepo, never()).delete(any());
+    }
+
+    // --- updateHolderName tests ---
+
+    @Test
+    void updateHolderName_withValidName_updatesAndReturnsSavedAccount() {
+        // arrange
+        String acctNum = "ACC456";
+        String newName = "  Alice Smith  ";
+        Account existing = new Account();
+        existing.setAccountNumber(acctNum);
+        existing.setHolderName("Old Name");
+
+        Account saved = new Account();
+        saved.setAccountNumber(acctNum);
+        saved.setHolderName(newName.trim());
+
+        when(accountRepo.findByAccountNumber(acctNum)).thenReturn(existing);
+        when(accountRepo.save(any(Account.class))).thenReturn(saved);
+
+        // act
+        Account result = service.updateHolderName(acctNum, newName);
+
+        // assert
+        assertNotNull(result);
+        assertEquals(newName.trim(), result.getHolderName());
+
+        // capture the saved entity to ensure setHolderName was called with trimmed value
+        ArgumentCaptor<Account> captor = ArgumentCaptor.forClass(Account.class);
+        verify(accountRepo).save(captor.capture());
+        assertEquals(newName.trim(), captor.getValue().getHolderName());
+    }
+
+    @Test
+    void updateHolderName_withBlankName_throwsInvalidAmountException() {
+        // arrange
+        String acctNum = "ACC789";
+        String blankName = "   ";
+
+        // act & assert
+        InvalidAmountException ex = assertThrows(InvalidAmountException.class,
+                () -> service.updateHolderName(acctNum, blankName));
+
+        assertEquals("holderName must not be blank", ex.getMessage());
+        verify(accountRepo, never()).findByAccountNumber(anyString());
+        verify(accountRepo, never()).save(any());
+    }
+
+    @Test
+    void updateHolderName_nonExistingAccount_throwsAccountNotFoundException() {
+        // arrange
+        String acctNum = "UNKNOWN";
+        String newName = "Bob";
+        when(accountRepo.findByAccountNumber(acctNum)).thenReturn(null);
+
+        // act & assert
+        AccountNotFoundException ex = assertThrows(AccountNotFoundException.class,
+                () -> service.updateHolderName(acctNum, newName));
+
+        assertEquals("Account does not exist", ex.getMessage());
+        verify(accountRepo).findByAccountNumber(acctNum);
+        verify(accountRepo, never()).save(any());
+    }
 }
