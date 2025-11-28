@@ -29,7 +29,7 @@ public class AccountServiceImpl implements AccountService {
 
     private String generateAccNo(String name) {
         String initials = name.substring(0, 3).toUpperCase();
-        int random = new Random().nextInt(9000) + 1000;
+        int random = new Random().nextInt(8999) + 1000;
         log.info("Account number generated: {}", initials + random);
         return initials + random;
     }
